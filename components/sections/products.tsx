@@ -130,7 +130,6 @@ function ProductsSection({
         ref={sectionRef}
         style={{
           background: "#f8f4ee",
-          padding: "0 0 80px",
           position: "relative",
         }}
       >
@@ -198,7 +197,7 @@ function ProductsSection({
             }}
           >
             {/* Count pill */}
-            {!loading && (
+            {/* {!loading && (
               <span
                 style={{
                   fontFamily: '"DM Mono", monospace',
@@ -211,7 +210,7 @@ function ProductsSection({
               >
                 {products.length} items
               </span>
-            )}
+            )} */}
 
             {/* View all */}
             {showViewAll && (
@@ -246,7 +245,6 @@ function ProductsSection({
         {/* ── Product grid ── */}
         <div
           style={{
-            padding: "0 24px",
             display: "grid",
             gridTemplateColumns: `repeat(2, 1fr)`,
             gap: "2px",

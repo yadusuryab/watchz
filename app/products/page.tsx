@@ -475,7 +475,7 @@ function ProductsPageComponent() {
       </AnimatePresence>
 
       {/* ── Body ── */}
-      <div className="container mx-auto px-4 md:px-6 py-4 md:py-6">
+      <div className="container mx-auto  py-4 md:py-6">
         <div className="flex gap-8">
           {/* Desktop Sidebar */}
           <aside className="hidden md:block w-72 shrink-0">
@@ -495,7 +495,7 @@ function ProductsPageComponent() {
           {/* Products Grid */}
           <main className="flex-1 min-w-0">
             {/* Mobile result count */}
-            <div className="flex items-center justify-between mb-4 md:hidden">
+            <div className="flex px-4 items-center justify-between mb-4 md:hidden">
               <p className="text-xs text-neutral-400 font-medium">
                 {loading ? "Loading…" : `${pagination.total} products`}
               </p>
