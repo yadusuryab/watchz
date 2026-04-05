@@ -36,7 +36,7 @@ function buildWhatsAppMessage(
 
   const itemLines = cart
     .map((item) => {
-      const productUrl = `${baseUrl}/p/${item.slug || item._id}`;
+      const productUrl = `${baseUrl}/product/${item.slug || item._id}`;
       const variantInfo = [item.size && `Size: ${item.size}`, item.color && `Color: ${item.color}`]
         .filter(Boolean)
         .join(", ");
