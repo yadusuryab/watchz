@@ -295,14 +295,14 @@ function CartPage() {
               </div>
 
               {/* Free shipping notice */}
-              <div className="mt-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl px-4 py-3 flex items-center gap-2.5">
+              {/* <div className="mt-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl px-4 py-3 flex items-center gap-2.5">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" className="w-4 h-4 shrink-0">
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
                 <p className="text-xs text-[#16a34a] font-medium">
                   You qualify for free shipping on this order!
                 </p>
-              </div>
+              </div> */}
             </div>
 
           </div>

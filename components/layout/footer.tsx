@@ -31,7 +31,6 @@ function Footer() {
   const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP || "#";
 
   const marqueeItems = [
-    "Free shipping over ₹999",
     "New arrivals every Friday",
     "Easy 30-day returns",
     "Premium collections, curated for you",

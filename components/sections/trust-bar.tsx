@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Truck, RotateCcw, ShieldCheck, Headphones } from "lucide-react";
+import { Truck, RotateCcw, ShieldCheck, Headphones, Verified } from "lucide-react";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -23,9 +23,9 @@ function useReveal() {
 
 const badges = [
   {
-    icon: Truck,
-    title: "Free Shipping",
-    desc: "On all orders paid online",
+    icon: Verified,
+    title: "Premium Products.",
+    desc: "Quality and premium products at affordable price.",
     tag: "01",
   },
   {
