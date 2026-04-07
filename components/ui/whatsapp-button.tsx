@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP || "https://wa.me/919400941277";
+const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP || "https://wa.me/919562124798";
 const NUMBER = "+91 94009 41277";
 
 export function WhatsAppButton() {

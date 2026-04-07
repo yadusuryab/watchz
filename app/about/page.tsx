@@ -262,7 +262,7 @@ export default function AboutPage() {
                 </p>
               </div>
               {/* Contact pill */}
-              <a href="tel:+919400941277"
+              <a href="tel:+919562124798"
                 className="ghost-btn inline-flex items-center gap-2.5 mt-8 px-5 py-2.5
                   rounded-full text-sm no-underline font-medium">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
@@ -363,7 +363,7 @@ export default function AboutPage() {
                     <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </Link>
-                <a href="https://wa.me/919400941277" target="_blank" rel="noopener noreferrer"
+                <a href="https://wa.me/919562124798" target="_blank" rel="noopener noreferrer"
                   className="ghost-btn inline-flex items-center gap-2 px-7 py-3.5
                     rounded-full text-sm font-medium tracking-wide no-underline">
                   Chat on WhatsApp

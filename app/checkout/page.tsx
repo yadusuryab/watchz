@@ -327,7 +327,7 @@ export default function CheckoutPage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <Field label="Phone *" id="phoneNumber" error={errors.phoneNumber?.message}>
-                    <input id="phoneNumber" {...register("phoneNumber")} placeholder="9400941277"
+                    <input id="phoneNumber" {...register("phoneNumber")} placeholder="9562124798"
                       className={errors.phoneNumber ? inputErr : inputBase} />
                   </Field>
                   <Field label="Alternate Phone" id="alternatePhone">

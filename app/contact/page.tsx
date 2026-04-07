@@ -24,7 +24,7 @@ const CHANNELS = [
     ),
     label: "Phone / WhatsApp",
     value: "+91 94009 41277",
-    href: "https://wa.me/919400941277",
+    href: "https://wa.me/919562124798",
     hint: "Mon – Sat, 9 am – 8 pm IST",
   },
   {
@@ -330,7 +330,7 @@ export default function ContactPage() {
 
                       <p className="text-[10.5px] text-white/20 text-center font-light leading-relaxed">
                         Or reach us faster on{" "}
-                        <a href="https://wa.me/919400941277" target="_blank" rel="noopener noreferrer"
+                        <a href="https://wa.me/919562124798" target="_blank" rel="noopener noreferrer"
                           className="text-[var(--teal-light)] opacity-70 hover:opacity-100 transition-opacity">
                           WhatsApp
                         </a>
