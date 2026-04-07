@@ -23,7 +23,7 @@ const CHANNELS = [
       </svg>
     ),
     label: "Phone / WhatsApp",
-    value: "+91 94009 41277",
+    value: "+91 9562124798",
     href: "https://wa.me/919562124798",
     hint: "Mon – Sat, 9 am – 8 pm IST",
   },
