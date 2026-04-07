@@ -47,7 +47,7 @@ function buildWhatsAppMessage(
   const paymentLine =
     paymentMethod === "online"
       ? "💳 Online Payment (UPI/Card)"
-      : "💵 Cash on Delivery (₹100 advance)";
+      : "💵 Cash on Delivery (₹180 advance)";
 
   return `🛍️ *New Order — ${appName}*
 
@@ -128,7 +128,7 @@ export default function CheckoutPage() {
       setShippingCharges(0);
       setDeliveryTime("Kerala: 2–3 days · Outside Kerala: 6–7 days");
     } else {
-      setShippingCharges(100);
+      setShippingCharges(180);
       setDeliveryTime("Estimated delivery in 7 days");
     }
   }, [paymentMethod]);
@@ -389,13 +389,14 @@ export default function CheckoutPage() {
                     Online Payment
                   </p>
                   <p className={`text-xs mt-0.5 ${paymentMethod === "online" ? "text-[#c8bfb0]" : "text-[#8c7d6b]"}`}>
-                    UPI, cards or wallets
-                  </p>
+   Shipping charges apply for some items.
+   
+</p>
                 </div>
-                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full
+                {/* <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full
                   ${paymentMethod === "online" ? "bg-emerald-500 text-white" : "bg-emerald-50 text-emerald-600"}`}>
-                  FREE shipping
-                </span>
+                  
+                </span> */}
               </label>
 
               {/* COD - Disabled if any product doesn't support it */}
@@ -419,12 +420,12 @@ export default function CheckoutPage() {
                     Cash on Delivery
                   </p>
                   <p className={`text-xs mt-0.5 ${paymentMethod === "cod" && isCodAvailableForCart ? "text-[#c8bfb0]" : "text-[#8c7d6b]"}`}>
-                    ₹100 advance + rest on delivery
+                    ₹180 advance + rest on delivery
                   </p>
                 </div>
                 <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full
                   ${paymentMethod === "cod" && isCodAvailableForCart ? "bg-amber-400 text-[#1a1208]" : "bg-amber-50 text-amber-600"}`}>
-                  +₹100 extra
+                  +₹180 extra
                 </span>
               </label>
 
