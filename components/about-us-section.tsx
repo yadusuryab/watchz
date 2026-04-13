@@ -206,7 +206,7 @@ export default function AboutUsSection() {
           className="text-center max-w-3xl mx-auto mb-20 text-lg text-slate-600 leading-relaxed font-light"
          
         >
-          For over three years, <span className="font-semibold text-slate-900">Trendzo</span> has been the trusted destination 
+          For over three years, <span className="font-semibold text-slate-900">watchz</span> has been the trusted destination 
           for connoisseurs seeking premium timepieces. Based in Tirur, we curate exceptional first-copy watches 
           that embody luxury without compromise.
         </motion.p>

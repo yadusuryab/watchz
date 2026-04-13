@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import CategoryCard from '../cards/category-card'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowRight, Zap } from 'lucide-react'
 import Link from 'next/link'
+import { Button } from '../ui/button'
 
 export type Category = {
   name: string
@@ -15,14 +15,11 @@ export type Category = {
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function SkeletonCard({ tall }: { tall?: boolean }) {
   return (
-    <div
-      className={`relative w-full overflow-hidden rounded-none bg-neutral-900 ${tall ? 'h-[480px]' : 'h-[280px]'}`}
-      style={{ background: '#111' }}
-    >
+    <div className={`relative w-full overflow-hidden bg-neutral-100 ${tall ? 'h-[480px]' : 'h-[280px]'}`}>
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 -translate-x-full"
         style={{
-          background: 'linear-gradient(90deg, transparent, rgba(255,220,120,0.04), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent)',
           animation: 'shimmer 1.8s ease-in-out infinite',
         }}
       />
@@ -30,24 +27,7 @@ function SkeletonCard({ tall }: { tall?: boolean }) {
   )
 }
 
-// ── Number Label ──────────────────────────────────────────────────────────────
-function IndexLabel({ n }: { n: number }) {
-  return (
-    <span
-      style={{
-        fontFamily: '"DM Mono", "Courier New", monospace',
-        fontSize: '10px',
-        letterSpacing: '0.18em',
-        opacity: 0.8,
-      }}
-      className='text-primary'
-    >
-      {String(n).padStart(2, '0')}
-    </span>
-  )
-}
-
-// ── Single Category Row ───────────────────────────────────────────────────────
+// ── Category Row ──────────────────────────────────────────────────────────────
 function CategoryRow({
   cat,
   index,
@@ -69,147 +49,80 @@ function CategoryRow({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Image container */}
       <div
         className="relative w-full overflow-hidden"
         style={{
-          height: tall ? '480px' : '260px',
+          height: tall ? '260px' : '200px',
           opacity: visible ? 1 : 0,
           transform: visible ? 'translateY(0)' : 'translateY(28px)',
-          transition: `opacity 0.7s ease ${index * 100}ms, transform 0.7s ease ${index * 100}ms`,
+          transition: `opacity 0.6s ease ${index * 100}ms, transform 0.6s ease ${index * 100}ms`,
         }}
       >
         {/* Background image */}
         <div
+          className="absolute inset-0 bg-cover bg-center"
           style={{
-            position: 'absolute',
-            inset: 0,
             backgroundImage: `url(${cat.image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            transform: hovered ? 'scale(1.04)' : 'scale(1)',
-            transition: 'transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94)',
+            transform: hovered ? 'scale(1.05)' : 'scale(1)',
+            transition: 'transform 0.8s cubic-bezier(0.25,0.46,0.45,0.94)',
           }}
         />
 
-        {/* Dark gradient overlay */}
+        {/* Dark gradient */}
         <div
+          className="absolute inset-0 transition-all duration-500"
           style={{
-            position: 'absolute',
-            inset: 0,
             background: hovered
-              ? 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.1) 100%)'
-              : 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.05) 100%)',
-            transition: 'background 0.5s ease',
+              ? 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.10) 100%)'
+              : 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.30) 55%, rgba(0,0,0,0.05) 100%)',
           }}
         />
 
-        {/* Gold grain texture */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage:
-              'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.03\'/%3E%3C/svg%3E")',
-            opacity: 0.4,
-            mixBlendMode: 'overlay',
-            pointerEvents: 'none',
-          }}
-        />
+        {/* Orange left accent bar */}
+        {/* <div
+          className="absolute left-0 top-0 bottom-0 w-[3px] bg-orange-500 transition-opacity duration-300"
+          style={{ opacity: hovered ? 1 : 0 }}
+        /> */}
 
-        {/* Index number — top left */}
+        {/* Index — top left */}
         <div
-          style={{
-            position: 'absolute',
-            top: '20px',
-            left: '22px',
-            opacity: visible ? 1 : 0,
-            transition: `opacity 0.6s ease ${index * 100 + 200}ms`,
-          }}
+          className="absolute top-5 left-5 font-black text-[10px] tracking-[0.3em] text-white transition-opacity duration-300"
+          style={{ opacity: visible ? 1 : 0, transitionDelay: `${index * 100 + 200}ms` }}
         >
-          <IndexLabel n={index + 1} />
+          {String(index + 1).padStart(2, '0')}
         </div>
 
-        {/* Gold accent line — left edge */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: '2px',
-            background: 'linear-gradient(to bottom, transparent, #b8924a, transparent)',
-            opacity: hovered ? 1 : 0,
-            transition: 'opacity 0.4s ease',
-          }}
-        />
-
-        {/* Bottom text block */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: '28px 24px 24px',
-          }}
-        >
-          {/* Category name */}
+        {/* Bottom text */}
+        <div className="absolute bottom-0 left-0 right-0 p-6">
           <h3
+            className=" text-white leading-none tracking-tighter m-0 transition-transform duration-400"
             style={{
-              fontFamily: '"Playfair Display", "Georgia", serif',
-              fontSize: tall ? '42px' : '28px',
-              fontWeight: 400,
-              color: '#f5f0e8',
-              letterSpacing: '-0.01em',
-              lineHeight: 1.1,
-              margin: 0,
+              fontSize: tall ? '52px' : '32px',
               transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
-              transition: 'transform 0.4s ease',
             }}
           >
             {cat.name}
           </h3>
 
-          {/* Bottom row: product count + arrow */}
           <div
+            className="flex items-center justify-between mt-3 transition-all duration-300"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: '10px',
-              opacity: hovered ? 1 : 0.55,
+              opacity: hovered ? 1 : 0.5,
               transform: hovered ? 'translateY(0)' : 'translateY(4px)',
-              transition: 'opacity 0.35s ease, transform 0.35s ease',
             }}
           >
-            <span
-              style={{
-                fontFamily: '"DM Mono", "Courier New", monospace',
-                fontSize: '10px',
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-              }}
-              className='text-primary'
-            >
+            <span className="text-[9px] font-black tracking-[0.35em] uppercase text-muted-foreground">
               {cat.productCount != null ? `${cat.productCount} pieces` : 'Explore'}
             </span>
 
             <div
+              className="w-8 h-8 rounded-sm flex items-center justify-center border transition-all duration-300"
               style={{
-                width: '32px',
-                height: '32px',
-             
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: hovered ? 'rgba(184,146,74,0.15)' : 'transparent',
-                transition: 'background 0.3s ease',
+                borderColor: hovered ? 'rgba(249,115,22,0.6)' : 'rgba(255,255,255,0.2)',
+                background: hovered ? 'rgba(249,115,22,0.15)' : 'transparent',
               }}
-              className='text-primary border-primary border-2'
             >
-              <ArrowUpRight size={13}  />
+              <ArrowRight size={13} className="text-orange-400" strokeWidth={2.5} />
             </div>
           </div>
         </div>
@@ -226,7 +139,6 @@ function CategorySection() {
   const [visible, setVisible] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
 
-  // Fetch
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -252,7 +164,6 @@ function CategorySection() {
     fetchCategories()
   }, [])
 
-  // Intersection observer
   useEffect(() => {
     const el = sectionRef.current
     if (!el) return
@@ -264,142 +175,74 @@ function CategorySection() {
     return () => obs.disconnect()
   }, [])
 
-  // Split layout: first item is hero (tall), rest are 2-col grid
   const [hero, ...rest] = categories
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@300;400&display=swap');
-        @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(250%)} }
-      `}</style>
+      <style>{`@keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(250%)} }`}</style>
 
-      <section
-        ref={sectionRef}
-        style={{
-          padding: '64px 0 80px',
-          position: 'relative',
-        }}
-      >
-        {/* ── Decorative top rule ── */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: '24px',
-            right: '24px',
-            height: '1px',
-            background: 'linear-gradient(to right, transparent, rgba(184,146,74,0.3), transparent)',
-          }}
-        />
+      <section ref={sectionRef} className="bg-white py-16 relative">
 
-        {/* ── Header ── */}
-        <div
-          style={{
-            padding: '0 24px',
-            marginBottom: '40px',
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'space-between',
-          }}
-        >
+        {/* Orange top border */}
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-primary" />
+
+        {/* ── Header ───────────────────────────────────────────────────── */}
+        <div className="px-6 mb-8 flex items-end justify-between">
           <div>
-            {/* eyebrow */}
+            {/* Eyebrow */}
             <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                marginBottom: '10px',
-                opacity: visible ? 1 : 0,
-                transform: visible ? 'translateY(0)' : 'translateY(8px)',
-                transition: 'opacity 0.5s ease, transform 0.5s ease',
-              }}
+              className="flex items-center gap-2 mb-3 transition-all duration-500"
+              style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(8px)' }}
             >
-              <div style={{ width: '28px', height: '1px', opacity: 0.6 }} className='bg-primary' />
-              <span
-                style={{
-                  fontFamily: '"DM Mono", monospace',
-                  fontSize: '9px',
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  opacity: 0.8,
-                }}
-                className='text-primary'
-              >
-                Collections
+              <span className="text-sm tracking-tighter uppercase text-primary">
+                Find by
               </span>
+              <div className="h-px w-8 bg-primary" />
             </div>
 
-            {/* headline */}
+            {/* Headline */}
             <h2
+              className=" leading-none tracking-tighter m-0 transition-all duration-500"
               style={{
-                fontFamily: '"Playfair Display", Georgia, serif',
-                fontSize: 'clamp(28px, 5vw, 40px)',
-                fontWeight: 400,
-                letterSpacing: '-0.02em',
-                lineHeight: 1.1,
-                margin: 0,
+                fontSize: 'clamp(32px, 6vw, 48px)',
                 opacity: visible ? 1 : 0,
                 transform: visible ? 'translateY(0)' : 'translateY(12px)',
-                transition: 'opacity 0.55s ease 0.07s, transform 0.55s ease 0.07s',
+                transitionDelay: '70ms',
               }}
             >
-              Curated for you.
+            Category
             </h2>
           </div>
 
-          {/* View all link */}
+          {/* View all */}
           <Link
             href="/products"
-            style={{
-              fontFamily: '"DM Mono", monospace',
-              fontSize: '9px',
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              borderBottom: '1px solid rgba(184,146,74,0.3)',
-              paddingBottom: '2px',
-              opacity: visible ? 0.8 : 0,
-              transition: 'opacity 0.5s ease 0.15s',
-            }}
-            className='text-primary'
           >
-            View all <ArrowUpRight size={10} />
-          </Link>
+           <Button> View All
+            <ArrowRight size={12} className="transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2.5} />
+          </Button></Link>
         </div>
 
-        {/* ── Grid ── */}
+        {/* ── Grid ─────────────────────────────────────────────────────── */}
         {isLoading ? (
-          <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+          <div className="px-6 flex flex-col gap-[3px]">
             <SkeletonCard tall />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px' }}>
+            <div className="grid grid-cols-2 gap-[3px]">
               <SkeletonCard />
               <SkeletonCard />
             </div>
           </div>
         ) : categories.length === 0 ? (
-          <p style={{ color: '#555', textAlign: 'center', padding: '48px 0', fontFamily: 'monospace', fontSize: '12px' }}>
+          <p className="text-neutral-400 text-center py-12 text-[12px] font-black tracking-widest uppercase">
             No collections found
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', padding: '0 24px' }}>
-            {/* Hero row */}
-            {hero && (
-              <CategoryRow cat={hero} index={0} visible={visible} tall />
-            )}
-
-            {/* 2-column grid for the rest */}
+          <div className="flex flex-col gap-[3px] px-6">
+            {hero && <CategoryRow cat={hero} index={0} visible={visible} tall />}
             {rest.length > 0 && (
               <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: rest.length === 1 ? '1fr' : '1fr 1fr',
-                  gap: '3px',
-                }}
+                className="grid gap-[3px]"
+                style={{ gridTemplateColumns: rest.length === 1 ? '1fr' : '1fr 1fr' }}
               >
                 {rest.map((cat, i) => (
                   <CategoryRow key={cat.slug} cat={cat} index={i + 1} visible={visible} />
@@ -409,30 +252,13 @@ function CategorySection() {
           </div>
         )}
 
-        {/* ── Decorative bottom rule ── */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: '24px',
-            right: '24px',
-            height: '1px',
-            background: 'linear-gradient(to right, transparent, rgba(184,146,74,0.3), transparent)',
-          }}
-        />
+        {/* Bottom border */}
+        <div className="absolute bottom-0 left-6 right-6 h-px bg-neutral-200" />
 
-        {/* Dev error notice */}
+        {/* Dev error */}
         {error && process.env.NODE_ENV === 'development' && (
-          <div
-            style={{
-              margin: '16px 24px 0',
-              padding: '10px 14px',
-              background: 'rgba(184,146,74,0.08)',
-              border: '1px solid rgba(184,146,74,0.2)',
-              borderRadius: '4px',
-            }}
-          >
-            <p style={{ color: '#b8924a', fontSize: '11px', margin: 0, fontFamily: 'monospace' }}>
+          <div className="mx-6 mt-4 px-4 py-3 bg-orange-50 border border-orange-200 rounded-sm">
+            <p className="text-orange-600 text-[11px] m-0 font-black tracking-wider">
               Fallback data: {error}
             </p>
           </div>

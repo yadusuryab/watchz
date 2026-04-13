@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { Play, Pause, Volume2, VolumeX, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
+import { Play, Pause, Volume2, VolumeX, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -27,7 +28,7 @@ type BannerItem = {
 
 const SLIDE_DURATION = 6000;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const convertBannerToMediaItem = (banner: BannerItem, index: number) => {
   const isVideo = banner.mediaType === 'video';
@@ -35,9 +36,7 @@ const convertBannerToMediaItem = (banner: BannerItem, index: number) => {
     _key: banner._id || `banner-${index}`,
     _type: isVideo ? 'video' : 'image',
     asset: isVideo ? undefined : { url: banner.imageUrl || banner.image?.asset?.url || '' },
-    videoFile: isVideo
-      ? { asset: { url: banner.video?.url || '', mimeType: banner.video?.mimeType } }
-      : undefined,
+    videoFile: isVideo ? { asset: { url: banner.video?.url || '', mimeType: banner.video?.mimeType } } : undefined,
     poster: isVideo ? { asset: { url: banner.videoPoster || '' } } : undefined,
     alt: banner.title || 'Banner',
   };
@@ -53,34 +52,6 @@ const getActiveBanners = async (): Promise<BannerItem[]> => {
   }
 };
 
-// ─── Animated slide counter ───────────────────────────────────────────────────
-
-const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
-  const [displayed, setDisplayed] = useState(value);
-  const [exiting, setExiting] = useState(false);
-
-  useEffect(() => {
-    setExiting(true);
-    const t = setTimeout(() => {
-      setDisplayed(value);
-      setExiting(false);
-    }, 180);
-    return () => clearTimeout(t);
-  }, [value]);
-
-  return (
-    <span
-      className="inline-block transition-all duration-200"
-      style={{
-        opacity: exiting ? 0 : 1,
-        transform: exiting ? 'translateY(-6px)' : 'translateY(0)',
-      }}
-    >
-      {String(displayed + 1).padStart(2, '0')}
-    </span>
-  );
-};
-
 // ─── Slide Media ──────────────────────────────────────────────────────────────
 
 const SlideMedia: React.FC<{
@@ -91,6 +62,8 @@ const SlideMedia: React.FC<{
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
+
+  const videoUrl = media.videoFile?.asset?.url;
 
   useEffect(() => {
     if (media._type !== 'video' || !videoRef.current) return;
@@ -111,10 +84,10 @@ const SlideMedia: React.FC<{
             alt={media.alt || ''}
             className="w-full h-full object-cover"
             style={{
-              transform: isActive ? 'scale(1.06)' : 'scale(1)',
+              transform: isActive ? 'scale(1.05)' : 'scale(1)',
               transition: isActive
-                ? `transform ${SLIDE_DURATION + 1200}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`
-                : 'transform 900ms ease',
+                ? `transform ${SLIDE_DURATION + 1000}ms cubic-bezier(0.25,0.46,0.45,0.94)`
+                : 'transform 800ms ease',
             }}
             loading={priority ? 'eager' : 'lazy'}
           />
@@ -123,10 +96,8 @@ const SlideMedia: React.FC<{
     );
   }
 
-  const videoUrl = media.videoFile?.asset?.url;
-
   return (
-    <div className="absolute inset-0 bg-[#0a0a0a]">
+    <div className="absolute inset-0 bg-black">
       {videoUrl && (
         <>
           <video
@@ -138,69 +109,75 @@ const SlideMedia: React.FC<{
             playsInline
             onEnded={() => setPlaying(false)}
           />
-          {/* Play button */}
+          {/* Video controls */}
           {!playing && (
             <button
               onClick={() => setPlaying(true)}
-              aria-label="Play video"
               className="absolute inset-0 z-10 flex items-center justify-center group"
+              aria-label="Play video"
             >
-              <span
-                className="
-                  w-16 h-16 rounded-full
-                  border border-primary/40
-                  bg-black/20 backdrop-blur-md
-                  flex items-center justify-center
-                  group-hover:bg-primary/15 group-hover:border-primary/70
-                  group-hover:scale-105
-                  transition-all duration-400
-                "
-              >
-                <Play className="w-5 h-5 text-[#E8D5A8] ml-0.5" strokeWidth={1.25} />
+              <span className="w-14 h-14 rounded-full border border-white/40 bg-white/10 backdrop-blur-md
+                flex items-center justify-center
+                group-hover:bg-white/20 group-hover:scale-105
+                transition-all duration-300">
+                <Play className="w-5 h-5 text-white ml-0.5" />
               </span>
             </button>
           )}
-          {/* Playing controls */}
           {playing && (
-            <div className="absolute bottom-6 right-8 z-20 flex gap-2">
+            <div className="absolute bottom-5 right-5 z-20 flex gap-2">
               <button
-                onClick={() => {
-                  if (videoRef.current) {
-                    videoRef.current.muted = !muted;
-                    setMuted((m) => !m);
-                  }
-                }}
+                onClick={() => { if (videoRef.current) { videoRef.current.muted = !muted; setMuted(m => !m); } }}
                 aria-label={muted ? 'Unmute' : 'Mute'}
-                className="
-                  w-8 h-8 rounded-full
-                  bg-black/30 backdrop-blur-sm
-                  border border-primary/20
-                  flex items-center justify-center
-                  text-primary hover:border-primary/50
-                  transition-all duration-200
-                "
+                className="w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm border border-white/15
+                  flex items-center justify-center text-white
+                  hover:bg-black/50 transition-all duration-200"
               >
-                {muted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+                {muted ? <VolumeX size={13} /> : <Volume2 size={13} />}
               </button>
               <button
                 onClick={() => setPlaying(false)}
                 aria-label="Pause"
-                className="
-                  w-8 h-8 rounded-full
-                  bg-black/30 backdrop-blur-sm
-                  border border-primary/20
-                  flex items-center justify-center
-                  text-primary hover:border-primary/50
-                  transition-all duration-200
-                "
+                className="w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm border border-white/15
+                  flex items-center justify-center text-white
+                  hover:bg-black/50 transition-all duration-200"
               >
-                <Pause size={12} />
+                <Pause size={13} />
               </button>
             </div>
           )}
         </>
       )}
     </div>
+  );
+};
+
+// ─── Animated Counter ─────────────────────────────────────────────────────────
+
+const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
+  const [displayed, setDisplayed] = useState(value);
+  const [entering, setEntering] = useState(false);
+
+  useEffect(() => {
+    setEntering(true);
+    const t = setTimeout(() => {
+      setDisplayed(value);
+      setEntering(false);
+    }, 200);
+    return () => clearTimeout(t);
+  }, [value]);
+
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        opacity: entering ? 0 : 1,
+        transform: entering ? 'translateY(6px)' : 'translateY(0)',
+        transition: 'opacity 0.3s ease, transform 0.3s ease',
+      }}
+    >
+      {String(displayed + 1).padStart(2, '0')}
+    </span>
   );
 };
 
@@ -211,10 +188,9 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [textVisible, setTextVisible] = useState(true);
-  const [progressKey, setProgressKey] = useState(0);
   const autoSlideRef = useRef<NodeJS.Timeout | null>(null);
+  const [progressKey, setProgressKey] = useState(0);
 
-  // Fetch
   useEffect(() => {
     (async () => {
       try {
@@ -226,13 +202,12 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
     })();
   }, []);
 
-  // Auto-slide
   const startAutoSlide = useCallback((count: number) => {
     if (autoSlideRef.current) clearInterval(autoSlideRef.current);
     if (count <= 1) return;
     autoSlideRef.current = setInterval(() => {
-      setSelectedIndex((p) => (p + 1) % count);
-      setProgressKey((k) => k + 1);
+      setSelectedIndex(p => (p + 1) % count);
+      setProgressKey(k => k + 1);
     }, SLIDE_DURATION);
   }, []);
 
@@ -241,83 +216,59 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
     return () => { if (autoSlideRef.current) clearInterval(autoSlideRef.current); };
   }, [banners.length, startAutoSlide]);
 
-  // Navigate
-  const goTo = useCallback(
-    (index: number) => {
-      setTextVisible(false);
-      setTimeout(() => {
-        setSelectedIndex(index);
-        setProgressKey((k) => k + 1);
-        setTextVisible(true);
-      }, 260);
-      startAutoSlide(banners.length);
-    },
-    [banners.length, startAutoSlide]
-  );
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'center', loop: false, duration: 30 });
 
-  const goPrev = () => goTo(selectedIndex === 0 ? banners.length - 1 : selectedIndex - 1);
-  const goNext = () => goTo(selectedIndex === banners.length - 1 ? 0 : selectedIndex + 1);
+  const goTo = useCallback((index: number) => {
+    setTextVisible(false);
+    setTimeout(() => {
+      setSelectedIndex(index);
+      setProgressKey(k => k + 1);
+      emblaApi?.scrollTo(index);
+      setTextVisible(true);
+    }, 250);
+    startAutoSlide(banners.length);
+  }, [emblaApi, banners.length, startAutoSlide]);
 
-  // ── Skeleton ─────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => {
+      const i = emblaApi.selectedScrollSnap();
+      if (i !== selectedIndex) {
+        setTextVisible(false);
+        setTimeout(() => { setSelectedIndex(i); setTextVisible(true); }, 250);
+        setProgressKey(k => k + 1);
+      }
+    };
+    emblaApi.on('select', onSelect);
+    return () => { emblaApi.off('select', onSelect); };
+  }, [emblaApi, selectedIndex]);
+
+  // Skeleton
   if (loading) {
     return (
-      <section className={cn('w-full', className)}>
-        <div className="relative w-full h-[75vh] md:h-[90vh] bg-[#0e0e0e] overflow-hidden">
-          <div
-            className="absolute inset-0 -translate-x-full"
-            style={{
-              background: 'linear-gradient(90deg, transparent, rgba(201,169,110,0.04), transparent)',
-              animation: 'shimmer 2s ease-in-out infinite',
-            }}
-          />
-          {/* Skeleton text lines */}
-          <div className="absolute bottom-10 left-10 md:left-16 space-y-3">
-            <div className="h-3 w-20 rounded bg-white/5" />
-            <div className="h-10 w-64 rounded bg-white/5" />
-            <div className="h-10 w-48 rounded bg-white/5" />
-            <div className="h-3 w-32 rounded bg-white/5 mt-4" />
-          </div>
+      <section className={cn("w-full", className)}>
+        <div className="relative w-full h-[70vh] md:h-[88vh] bg-neutral-100 overflow-hidden">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_ease-in-out_infinite]
+            bg-gradient-to-r from-transparent via-white/50 to-transparent" />
         </div>
-        <style>{`@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}`}</style>
+        <style>{`@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
       </section>
     );
   }
 
-  // ── Fallback ──────────────────────────────────────────────────────────────────
+  // Fallback
   if (!banners.length) {
     return (
-      <section className={cn('w-full', className)}>
-        <div className="relative w-full h-[75vh] md:h-[90vh] bg-[#0a0a0a] overflow-hidden flex items-end">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 pointer-events-none" />
+      <section className={cn("w-full", className)}>
+        <div className="relative w-full h-[70vh] md:h-[88vh] bg-neutral-900 overflow-hidden flex items-end">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="relative z-10 p-8 md:p-16 max-w-2xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-px w-8 bg-primary/50" />
-              <span className="text-[9px] tracking-[0.35em] uppercase text-primary font-['Geist',system-ui]">
-                New Collection
-              </span>
-            </div>
-            <h1
-              className="font-['Cormorant_Garamond'] text-5xl md:text-7xl font-light text-[#f0ece4] leading-[0.92] tracking-tight mb-7"
-            >
-              Welcome to<br />
-              <em className="italic text-[#E8D5A8]">Our Store</em>
+            <p className="text-xs tracking-[0.25em] uppercase text-white/40 mb-4 font-mono">New Collection</p>
+            <h1 className="text-5xl md:text-7xl font-light text-white leading-[0.95] tracking-tight mb-6">
+              Welcome to<br />Our Store
             </h1>
-            <Link
-              href="/products"
-              className="
-                group inline-flex items-center gap-2.5
-                text-[11px] font-light tracking-[0.2em] uppercase
-                text-primary border-b border-primary/30 pb-0.5
-                hover:border-primary hover:gap-4
-                transition-all duration-300
-                font-['Geist',system-ui]
-              "
-            >
-              Explore Collection
-              <ArrowUpRight
-                size={13}
-                className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-              />
+            <Link href="/products" className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white border-b border-white/20 hover:border-white pb-px transition-all duration-300">
+              Explore Collection <ArrowUpRight size={14} />
             </Link>
           </div>
         </div>
@@ -332,40 +283,34 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <>
       <style>{`
-        @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(250%)} }
-        @keyframes progressFill { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+        @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
+        @keyframes progressFill { from{transform:scaleX(0)} to{transform:scaleX(1)} }
         @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(20px); }
+          from { opacity: 0; transform: translateY(18px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes revealLine {
-          from { transform: scaleX(0); transform-origin: left; }
-          to   { transform: scaleX(1); transform-origin: left; }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to   { opacity: 1; }
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
         }
       `}</style>
 
-      <section
-        className={cn('w-full select-none', className)}
-        aria-label="Featured collection"
-      >
-        {/* ── Main slide area ─────────────────────────────────────────────── */}
-        <div className="relative w-full h-[75vh] md:h-[90vh] overflow-hidden bg-[#0a0a0a]">
+      <section className={cn("w-full select-none p-4", className)} aria-label="Featured collection">
 
-          {/* Cross-fade slides */}
+        {/* ── Main slide area ── */}
+        <div className="relative w-full h-[45vh] rounded-2xl  md:h-[90vh] overflow-hidden bg-neutral-950">
+
+          {/* Slides rendered as stacked layers (cross-fade) */}
           {banners.map((banner, index) => {
             const media = convertBannerToMediaItem(banner, index);
             const isActive = selectedIndex === index;
             return (
               <div
                 key={banner._id || index}
-                className="absolute inset-0"
+                className="absolute inset-0 "
                 style={{
                   opacity: isActive ? 1 : 0,
-                  transition: 'opacity 1000ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'opacity 900ms cubic-bezier(0.4, 0, 0.2, 1)',
                   zIndex: isActive ? 1 : 0,
                 }}
                 aria-hidden={!isActive}
@@ -375,102 +320,78 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
             );
           })}
 
-          {/* Gradient overlays — dark bottom + left edge */}
-          <div className="absolute inset-0 z-10 pointer-events-none"
-            style={{
-              background: 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.12) 50%, rgba(0,0,0,0.25) 100%)',
-            }}
-          />
-          <div className="absolute inset-0 z-10 pointer-events-none"
-            style={{
-              background: 'linear-gradient(to right, rgba(0,0,0,0.35) 0%, transparent 60%)',
-            }}
-          />
+          {/* Gradient overlays */}
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/75 via-black/10 to-black/20 pointer-events-none" />
+          <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/30 to-transparent pointer-events-none" />
 
-          {/* ── Slide counter — top right ── */}
-          <div className="absolute top-8 right-8 md:right-12 z-30">
-            <div
-              className="flex items-baseline gap-1.5 font-['Geist',system-ui] text-white/25"
-              style={{ fontSize: '11px', letterSpacing: '0.12em' }}
-            >
+          {/* ── Slide number — bleeds at edge ── */}
+          <div className="absolute top-8 right-0 z-20 overflow-hidden pr-6 md:pr-10">
+            <div className="flex items-baseline gap-1 font-mono text-white/30">
               <AnimatedNumber value={selectedIndex} />
-              <span className="text-white/15 mx-0.5">—</span>
-              <span>{String(banners.length).padStart(2, '0')}</span>
+              <span className="text-[10px] mx-1 text-white/15">—</span>
+              <span className="text-[11px]">{String(banners.length).padStart(2, '0')}</span>
             </div>
           </div>
 
-          {/* ── Vertical dot/progress rail — right edge ── */}
+          {/* ── Vertical progress track ── */}
           {banners.length > 1 && (
-            <div className="absolute right-8 md:right-12 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2.5 items-center">
+            <div className="absolute right-6 md:right-10 top-1/2 -translate-y-1/2 z-20
+              flex flex-col gap-3 items-center">
               {banners.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => goTo(i)}
                   aria-label={`Go to slide ${i + 1}`}
-                  className="relative flex items-start justify-center overflow-hidden"
-                  style={{
-                    width: 2,
-                    height: selectedIndex === i ? 36 : 14,
-                    background: selectedIndex === i ? 'rgba(201,169,110,0.25)' : 'rgba(255,255,255,0.18)',
-                    borderRadius: 999,
-                    transition: 'height 0.45s cubic-bezier(0.16,1,0.3,1), background 0.3s',
-                  }}
+                  className="group relative flex items-center justify-center"
                 >
-                  {selectedIndex === i && (
-                    <div
-                      key={progressKey}
-                      className="absolute top-0 left-0 right-0 rounded-full bg-primary"
-                      style={{
-                        animation: `progressFill ${SLIDE_DURATION}ms linear forwards`,
-                        transformOrigin: 'top',
-                      }}
-                    />
-                  )}
+                  <div
+                    className="rounded-full transition-all duration-500"
+                    style={{
+                      width: selectedIndex === i ? 2 : 2,
+                      height: selectedIndex === i ? 32 : 12,
+                      background: selectedIndex === i ? 'white' : 'rgba(255,255,255,0.25)',
+                    }}
+                  >
+                    {/* Animated fill for active */}
+                    {selectedIndex === i && (
+                      <div
+                        key={progressKey}
+                        className="absolute inset-0 rounded-full bg-white origin-top"
+                        style={{
+                          animation: `progressFill ${SLIDE_DURATION}ms linear forwards`,
+                          transformOrigin: 'top',
+                        }}
+                      />
+                    )}
+                  </div>
                 </button>
               ))}
             </div>
           )}
 
-          {/* ── Desktop text block ──────────────────────────────────────── */}
-          <div className="hidden md:flex absolute inset-0 z-20 items-end p-10 lg:p-16 pb-12 lg:pb-14">
+          {/* ── Desktop text block ── */}
+          <div className="hidden md:flex absolute inset-0 z-20 items-end p-10 lg:p-16">
             <div className="max-w-xl">
 
-              {/* Eyebrow line */}
+              {/* Category tag */}
               <div
-                key={`eyebrow-${selectedIndex}`}
-                className="flex items-center gap-3 mb-6"
-                style={{
-                  animation: textVisible
-                    ? 'fadeSlideUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.05s both'
-                    : 'none',
-                  opacity: textVisible ? undefined : 0,
-                }}
+                key={`tag-${selectedIndex}`}
+                style={{ animation: textVisible ? 'fadeSlideUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.05s both' : 'none', opacity: textVisible ? 1 : 0 }}
               >
-                <div
-                  className="h-px bg-primary/45"
-                  style={{
-                    width: 28,
-                    animation: textVisible ? 'revealLine 0.5s ease 0.1s both' : 'none',
-                  }}
-                />
-                <span
-                  className="text-[9px] tracking-[0.35em] uppercase text-primary font-['Geist',system-ui]"
-                >
-                  {current?.mediaType === 'video' ? 'Film' : 'Collection'}
-                </span>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="h-px w-8 bg-white/40" style={{ animation: 'revealLine 0.5s ease forwards' }} />
+                  <span className="text-[10px] tracking-[0.3em] uppercase text-white/50 font-mono">
+                    {current?.mediaType === 'video' ? 'Video' : 'Collection'}
+                  </span>
+                </div>
               </div>
 
               {/* Title */}
               {current?.title && (
                 <h1
                   key={`title-${selectedIndex}`}
-                  className="font-['Cormorant_Garamond'] text-5xl lg:text-[4.5rem] font-light text-[#f0ece4] leading-[0.92] tracking-tight mb-5"
-                  style={{
-                    animation: textVisible
-                      ? 'fadeSlideUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.12s both'
-                      : 'none',
-                    opacity: textVisible ? undefined : 0,
-                  }}
+                  className="text-2xl lg:text-[4.5rem] font-bold t text-white leading-[0.92] tracking-tight mb-5"
+                  style={{ animation: textVisible ? 'fadeSlideUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.12s both' : 'none', opacity: textVisible ? 1 : 0 }}
                 >
                   {current.title}
                 </h1>
@@ -480,13 +401,8 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
               {current?.subtitle && (
                 <p
                   key={`sub-${selectedIndex}`}
-                  className="text-[13px] font-light leading-relaxed tracking-wide text-white/40 mb-8 max-w-sm font-['Geist',system-ui]"
-                  style={{
-                    animation: textVisible
-                      ? 'fadeSlideUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.22s both'
-                      : 'none',
-                    opacity: textVisible ? undefined : 0,
-                  }}
+                  className="text-sm text-white/50 mb-7 leading-relaxed max-w-sm font-light tracking-wide"
+                  style={{ animation: textVisible ? 'fadeSlideUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.22s both' : 'none', opacity: textVisible ? 1 : 0 }}
                 >
                   {current.subtitle}
                 </p>
@@ -496,69 +412,28 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
               {ctaLabel && ctaHref && (
                 <div
                   key={`cta-${selectedIndex}`}
-                  style={{
-                    animation: textVisible
-                      ? 'fadeSlideUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.32s both'
-                      : 'none',
-                    opacity: textVisible ? undefined : 0,
-                  }}
+                  style={{ animation: textVisible ? 'fadeSlideUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.32s both' : 'none', opacity: textVisible ? 1 : 0 }}
                 >
                   <Link
                     href={ctaHref}
-                    className="
-                      group inline-flex items-center gap-2.5
-                      text-[10px] font-light tracking-[0.25em] uppercase
-                      text-primary border-b border-primary/30 pb-px
-                      hover:border-primary hover:text-[#E8D5A8] hover:gap-4
-                      transition-all duration-300
-                      font-['Geist',system-ui]
-                    "
+                    className="group inline-flex items-center gap-2.5
+                      text-sm font-medium text-white
+                      border-b border-white/25 pb-0.5
+                      hover:border-white hover:gap-4
+                      transition-all duration-300"
                   >
                     {ctaLabel}
-                    <ArrowUpRight
-                      size={12}
-                      className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                    />
+                    <ArrowUpRight size={13} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </Link>
                 </div>
               )}
             </div>
           </div>
 
-          {/* ── Arrow nav — desktop only ── */}
+          {/* ── Swipe hint — mobile only ── */}
           {banners.length > 1 && (
-            <div className="hidden md:flex absolute bottom-10 left-10 lg:left-16 z-30 items-center gap-2">
-              <button
-                onClick={goPrev}
-                aria-label="Previous slide"
-                className="
-                  w-9 h-9 flex items-center justify-center
-                  border border-white/15 rounded
-                  text-white/35 hover:text-primary hover:border-primary/40
-                  transition-all duration-250
-                "
-              >
-                <ChevronLeft className="w-4 h-4" strokeWidth={1.25} />
-              </button>
-              <button
-                onClick={goNext}
-                aria-label="Next slide"
-                className="
-                  w-9 h-9 flex items-center justify-center
-                  border border-white/15 rounded
-                  text-white/35 hover:text-primary hover:border-primary/40
-                  transition-all duration-250
-                "
-              >
-                <ChevronRight className="w-4 h-4" strokeWidth={1.25} />
-              </button>
-            </div>
-          )}
-
-          {/* ── Mobile swipe dots ── */}
-          {banners.length > 1 && (
-            <div className="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-30">
-              <div className="flex gap-1.5 items-center bg-black/20 backdrop-blur-md px-3 py-2 rounded-full">
+            <div className="md:hidden absolute backdrop-blur-xl p-1  rounded-full bottom-5 left-1/2 -translate-x-1/2 z-20">
+              <div className="flex gap-1.5">
                 {banners.map((_, i) => (
                   <button
                     key={i}
@@ -566,10 +441,9 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
                     aria-label={`Slide ${i + 1}`}
                     className="rounded-full transition-all duration-400"
                     style={{
-                      width: selectedIndex === i ? 18 : 5,
+                      width: selectedIndex === i ? 20 : 5,
                       height: 5,
-                      background:
-                        selectedIndex === i ? '#C9A96E' : 'rgba(255,255,255,0.25)',
+                      background: selectedIndex === i ? 'white' : 'rgba(255,255,255,0.3)',
                     }}
                   />
                 ))}
@@ -578,21 +452,15 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
           )}
         </div>
 
-        {/* ── Mobile text panel — below image ─────────────────────────────── */}
-        <div className="md:hidden bg-[#0a0a0a] px-5 pt-6 pb-8 border-t border-primary/10">
+        {/* ── Mobile text panel — below image ── */}
+        <div className="md:hidden bg-white  p-2 ">
 
-          {/* Eyebrow */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-px w-6 bg-primary/40" />
-            <span className="text-[8px] tracking-[0.35em] uppercase text-primary font-['Geist',system-ui]">
-              {current?.mediaType === 'video' ? 'Film' : 'Collection'}
-            </span>
-          </div>
-
+         <div className="flex justify-between">
+         <div>
           {current?.title && (
             <h2
               key={`m-title-${selectedIndex}`}
-              className="font-['Cormorant_Garamond'] text-[2.1rem] leading-[1.0] font-light text-[#f0ece4] tracking-tight"
+              className="text-xl font-bold  tracking-tighter"
               style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) both' }}
             >
               {current.title}
@@ -602,12 +470,13 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
           {current?.subtitle && (
             <p
               key={`m-sub-${selectedIndex}`}
-              className="text-[12px] text-white/35 mt-2.5 leading-relaxed font-light tracking-wide font-['Geist',system-ui]"
+              className="text-sm text-muted-foreground leading-relaxed font-semibold"
               style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.1s both' }}
             >
               {current.subtitle}
             </p>
           )}
+          </div>
 
           {ctaLabel && ctaHref && (
             <div
@@ -616,53 +485,52 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
             >
               <Link
                 href={ctaHref}
-                className="
-                  group inline-flex items-center gap-2 mt-5
-                  text-[9px] font-light tracking-[0.25em] uppercase
-                  text-primary border-b border-primary/30 pb-px
-                  hover:border-primary hover:text-[#E8D5A8] hover:gap-3
-                  transition-all duration-300
-                  font-['Geist',system-ui]
-                "
+                className="inline-flex items-center gap-1.5 mt-4
+                  text-sm text-neutral-900 font-medium
+                  border-b border-neutral-200 pb-0.5
+                  hover:border-neutral-900 hover:gap-3
+                  transition-all duration-300"
               >
-                {ctaLabel}
-                <ArrowUpRight size={11} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                {ctaLabel} <ArrowUpRight size={13} />
               </Link>
             </div>
           )}
+         </div>
 
-          {/* Mobile nav controls */}
+          {/* Mobile bottom bar — slide nav */}
           {banners.length > 1 && (
-            <div className="flex items-center justify-between mt-7 pt-5 border-t border-white/5">
-              <div className="flex items-baseline gap-1.5 font-['Geist',system-ui] text-white/25" style={{ fontSize: '10px', letterSpacing: '0.12em' }}>
+            <div className="flex items-center justify-between mt-1">
+              <span className="font-mono text-[11px] text-neutral-300 tracking-wider">
                 <AnimatedNumber value={selectedIndex} />
-                <span className="text-white/15 mx-0.5">·</span>
-                <span>{String(banners.length).padStart(2, '0')}</span>
-              </div>
+                <span className="mx-1.5 text-neutral-200">·</span>
+                {String(banners.length).padStart(2, '0')}
+              </span>
               <div className="flex gap-2">
                 <button
-                  onClick={goPrev}
+                  onClick={() => selectedIndex > 0 && goTo(selectedIndex - 1)}
+                  disabled={selectedIndex === 0}
+                  className="w-8 h-8 rounded-full border border-neutral-150 flex items-center justify-center
+                    text-neutral-400 hover:text-neutral-900 hover:border-neutral-300
+                    disabled:opacity-20 disabled:pointer-events-none
+                    transition-all duration-200 active:scale-95"
                   aria-label="Previous"
-                  className="
-                    w-8 h-8 flex items-center justify-center rounded
-                    border border-white/10
-                    text-white/30 hover:text-primary hover:border-primary/35
-                    transition-all duration-200 active:scale-95
-                  "
                 >
-                  <ChevronLeft className="w-4 h-4" strokeWidth={1.25} />
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M7 2L3 6L7 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </button>
                 <button
-                  onClick={goNext}
+                  onClick={() => selectedIndex < banners.length - 1 && goTo(selectedIndex + 1)}
+                  disabled={selectedIndex === banners.length - 1}
+                  className="w-8 h-8 rounded-full border border-neutral-150 flex items-center justify-center
+                    text-neutral-400 hover:text-neutral-900 hover:border-neutral-300
+                    disabled:opacity-20 disabled:pointer-events-none
+                    transition-all duration-200 active:scale-95"
                   aria-label="Next"
-                  className="
-                    w-8 h-8 flex items-center justify-center rounded
-                    border border-white/10
-                    text-white/30 hover:text-primary hover:border-primary/35
-                    transition-all duration-200 active:scale-95
-                  "
                 >
-                  <ChevronRight className="w-4 h-4" strokeWidth={1.25} />
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M5 2L9 6L5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </button>
               </div>
             </div>

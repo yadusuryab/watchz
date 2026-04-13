@@ -282,7 +282,7 @@ const ProductDetailsClient = ({ product }: { product: any }) => {
       {/* Additional Info */}
       <div className="mt-8 text-center">
         <p className="text-xs text-[#666666] uppercase tracking-wider">
-          TRENDZO • PREMIUM • QUALITY
+          WATCHZ • PREMIUM • QUALITY
         </p>
       </div>
     </div>

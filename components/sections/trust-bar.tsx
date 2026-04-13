@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Truck, RotateCcw, ShieldCheck, Headphones, Verified } from "lucide-react";
+import { RotateCcw, ShieldCheck, Headphones, Verified } from "lucide-react";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -10,9 +10,7 @@ function useReveal() {
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) { setVisible(true); obs.disconnect(); }
-      },
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
       { threshold: 0.15 }
     );
     obs.observe(el);
@@ -22,30 +20,10 @@ function useReveal() {
 }
 
 const badges = [
-  {
-    icon: Verified,
-    title: "Premium Products.",
-    desc: "Quality and premium products at affordable price.",
-    tag: "01",
-  },
-  {
-    icon: RotateCcw,
-    title: "Easy Returns",
-    desc: "Hassle-free returns for damaged or defective items",
-    tag: "02",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Secure Checkout",
-    desc: "100% protected payments",
-    tag: "03",
-  },
-  {
-    icon: Headphones,
-    title: "24h Support",
-    desc: "We're here when you need us",
-    tag: "04",
-  },
+  { icon: Verified,    title: "Premium Products", desc: "Quality products at affordable price.",        tag: "01" },
+  { icon: RotateCcw,   title: "Easy Returns",     desc: "Hassle-free returns for defective items.",    tag: "02" },
+  { icon: ShieldCheck, title: "Secure Checkout",  desc: "100% protected payments, always.",            tag: "03" },
+  { icon: Headphones,  title: "24h Support",      desc: "We're here whenever you need us.",            tag: "04" },
 ];
 
 export default function TrustBar() {
@@ -55,167 +33,76 @@ export default function TrustBar() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&display=swap');
-
         @keyframes trustSlideIn {
-          from { opacity: 0; transform: translateX(-16px); }
-          to   { opacity: 1; transform: translateX(0); }
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
+        .trust-item { opacity: 0; }
+        .trust-item.in { animation: trustSlideIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
 
-        .trust-item {
-          opacity: 0;
+        @keyframes expandSlash {
+          from { width: 0; }
+          to   { width: 20px; }
         }
-        .trust-item.in {
-          animation: trustSlideIn 0.55s cubic-bezier(0.16,1,0.3,1) forwards;
-        }
-
-        .trust-icon-ring {
-          transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .trust-item:hover .trust-icon-ring {
-          transform: scale(1.12) rotate(-6deg);
-        }
-        .trust-slash {
-          transition: width 0.4s ease;
-          width: 0;
-        }
+        .trust-slash { width: 0; }
         .trust-item.in .trust-slash {
-          width: 20px;
-          transition-delay: inherit;
+          animation: expandSlash 0.4s ease forwards;
         }
       `}</style>
 
-      <section style={{ padding: "20px 16px" }}>
-        {/* Outer tape strip — dark */}
-        <div
-          ref={ref}
-          style={{
-            background: "#111",
-            borderTop: "2px solid #11443d",
-            borderBottom: "2px solid #11443d",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          {/* Subtle diagonal grain */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage:
-                "repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 8px)",
-              pointerEvents: "none",
-            }}
-          />
+      <section className="px-4 py-5 ">
+        <div ref={ref} className="relative bg-white overflow-hidden ">
 
-          {/* 4 items in a row */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)",
-            }}
-          >
-            <style>{`@media(min-width:768px){ .trust-grid{ grid-template-columns: repeat(4,1fr) !important; } }`}</style>
+          {/* Diagonal grid texture */}
+      
 
+          <div className="grid grid-cols-2 md:grid-cols-4">
             {badges.map(({ icon: Icon, title, desc, tag }, i) => {
-              const isLast = i === badges.length - 1;
               const isHov = hovered === i;
+              const borderR = i !== badges.length - 1 ? "border-r border-neutral-800" : "";
+              const borderB = i < 2 ? "border-b border-neutral-800" : "";
 
               return (
                 <div
                   key={i}
-                  className={`trust-item ${visible ? "in" : ""}`}
+                  className={`trust-item ${visible ? "in" : ""} bg-secondary relative flex flex-col gap-3.5 p-6 md:p-7 cursor-default transition-colors duration-300  ${isHov ? "bg-orange-500/5" : "bg-transparent"}`}
+                  style={{ animationDelay: `${i * 90}ms` }}
                   onMouseEnter={() => setHovered(i)}
                   onMouseLeave={() => setHovered(null)}
-                  style={{
-                    animationDelay: `${i * 90}ms`,
-                    padding: "28px 20px 26px",
-                    borderRight: !isLast ? "1px solid rgba(201,168,76,0.2)" : "none",
-                    borderBottom: i < 2 ? "1px solid rgba(201,168,76,0.2)" : "none",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "14px",
-                    cursor: "default",
-                    background: isHov ? "rgba(201,168,76,0.05)" : "transparent",
-                    transition: "background 0.3s ease",
-                    position: "relative",
-                  }}
                 >
-                  {/* Tag number — top right */}
+                  {/* Tag — top right */}
                   <span
-                    style={{
-                      position: "absolute",
-                      top: "12px",
-                      right: "14px",
-                      fontFamily: '"DM Mono", monospace',
-                      fontSize: "8px",
-                      letterSpacing: "0.2em",
-                      color: "rgba(201,168,76,0.35)",
-                    }}
+                    className="absolute top-3 right-3.5 text-[8px] font-black tracking-[0.25em] text-neutral-700"
+                    style={{ animationDelay: `${i * 90}ms` }}
                   >
                     {tag}
                   </span>
 
-                  {/* Icon */}
+                  {/* Icon box */}
                   <div
-                    className="trust-icon-ring"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      border: `1px solid ${isHov ? "#11443d" : "rgba(201,168,76,0.35)"}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      background: isHov ? "rgba(201,168,76,0.12)" : "transparent",
-                      transition: "border-color 0.3s ease, background 0.3s ease",
-                    }}
+                    className={`w-10 h-10 rounded-sm flex items-center justify-center border transition-all duration-300 ${
+                      isHov
+                        ? "border-orange-500/60 bg-orange-500/10"
+                        : "border-neutral-700 bg-transparent"
+                    }`}
+                    style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1), border-color 0.3s, background 0.3s", transform: isHov ? "scale(1.1) rotate(-4deg)" : "scale(1)" }}
                   >
                     <Icon
-                      size={16}
-                      strokeWidth={1.5}
-                      color={isHov ? "#11443d" : "rgba(255,255,255,0.5)"}
-                      style={{ transition: "color 0.3s ease" }}
+                      size={15}
+                      strokeWidth={2}
+                      className={`transition-colors duration-300 ${isHov ? "text-orange-400" : "text-neutral-500"}`}
                     />
                   </div>
 
                   {/* Text */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                    {/* Title row with slash */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <div
-                        className="trust-slash"
-                        style={{
-                          height: "1px",
-                          background: "#11443d",
-                          flexShrink: 0,
-                          transitionDelay: `${i * 90 + 200}ms`,
-                        }}
-                      />
-                      <p
-                        style={{
-                          fontFamily: '"Bebas Neue", Impact, sans-serif',
-                          fontSize: "15px",
-                          letterSpacing: "0.12em",
-                          color: "#f5f0e8",
-                          margin: 0,
-                          lineHeight: 1,
-                        }}
-                      >
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2">
+                    
+                      <p className=" text-md font-bold tracking-tighter m-0 leading-none">
                         {title}
                       </p>
                     </div>
-
-                    <p
-                      style={{
-                        fontFamily: '"DM Mono", monospace',
-                        fontSize: "9.5px",
-                        letterSpacing: "0.05em",
-                        color: "rgba(255,255,255,0.3)",
-                        margin: 0,
-                        lineHeight: 1.5,
-                        paddingLeft: "28px",
-                      }}
-                    >
+                    <p className="text-[9.5px] font-semibold tracking-wider uppercase text-mute m-0 leading-relaxed ">
                       {desc}
                     </p>
                   </div>
