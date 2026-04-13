@@ -56,8 +56,8 @@ const services = [
 
 const stats = [
   { icon: Award,      value: 3,     label: "Years in Market",      suffix: "+" },
-  { icon: Users,      value: 852,  label: "Instagram Followers",  suffix: "+" },
-  { icon: TrendingUp, value: 52346, label: "Happy Customers",      suffix: "+" },
+  { icon: Users,      value: 5757,  label: "Instagram Followers",  suffix: "+" },
+  { icon: TrendingUp, value: 42346, label: "Happy Customers",      suffix: "+" },
 ];
 
 /* ─────────────────────────────────────────
