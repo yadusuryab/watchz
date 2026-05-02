@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import React from "react";
 import { Preloader } from "@/components/ui/preloader";
 import { ClientShell } from "@/components/layout/client-shell";
+import Script from "next/script";
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 
@@ -31,7 +32,7 @@ const dmMono = DM_Mono({
   display: "swap",
 });
 
-const OG_IMAGE = process.env.NEXT_PUBLIC_OG_IMAGE || "/default-og.jpg";
+const OG_IMAGE = process.env.NEXT_PUBLIC_OG_IMAGE || "/og.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -93,6 +94,20 @@ export default function RootLayout({
           </div>
           <Toaster richColors position="top-center" />
         </ThemeProvider>
+
+    
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-W2JM5J37DW"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-W2JM5J37DW');
+          `}
+        </Script>
       </body>
     </html>
   );
